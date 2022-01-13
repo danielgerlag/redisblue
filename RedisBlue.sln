@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32002.185
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedisBlue", "RedisBlue\RedisBlue.csproj", "{95DC1F89-67E5-4EAE-810A-3030637DC8B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestApp", "TestApp\TestApp.csproj", "{47EB5335-598D-41B3-B3AA-45624D0459C6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{95DC1F89-67E5-4EAE-810A-3030637DC8B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95DC1F89-67E5-4EAE-810A-3030637DC8B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95DC1F89-67E5-4EAE-810A-3030637DC8B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95DC1F89-67E5-4EAE-810A-3030637DC8B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47EB5335-598D-41B3-B3AA-45624D0459C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47EB5335-598D-41B3-B3AA-45624D0459C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47EB5335-598D-41B3-B3AA-45624D0459C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47EB5335-598D-41B3-B3AA-45624D0459C6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CE948E62-C764-4B6F-95B0-CBA3FA46C6B8}
+	EndGlobalSection
+EndGlobal
