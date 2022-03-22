@@ -5,11 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="StackExchange.Redis" Version="2.2.88" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="StackExchange.Redis" Version="2.5.43" />
   </ItemGroup>
 
 </Project>
