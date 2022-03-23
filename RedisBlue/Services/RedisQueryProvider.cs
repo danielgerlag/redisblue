@@ -30,8 +30,8 @@ namespace RedisBlue.Services
 
         public async ValueTask<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken token)
         {
-            var op = _expressionConverter.Convert(expression);
-            var asyncEnumerable = _source.Query<T>(_partitionKey, op);
+            //var op = _expressionConverter.Convert(expression);
+            var asyncEnumerable = _source.Query<T>(_partitionKey, expression);
             
             return typeof(TResult) switch
             {

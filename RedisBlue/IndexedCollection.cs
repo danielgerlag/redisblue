@@ -6,6 +6,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -144,10 +145,13 @@ namespace RedisBlue
             return new RedisQueryContext<T>(this, partitionKey, _serviceProvider);
         }
 
-        internal async IAsyncEnumerable<T> Query<T>(string partitionKey, Operand query, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        internal async IAsyncEnumerable<T> Query<T>(string partitionKey, Expression expression, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var resolver = _resolverProvider.GetResolver(query);
-            var resultKey = await resolver.Resolve(_redis, _collectionName, partitionKey, query);
+            var resolver = _resolverProvider.GetExpressionResolver(expression);
+            var resultKey = await resolver.Resolve(_redis, _collectionName, partitionKey, expression);
+            if (resultKey is not SetKeyResult)
+                throw new NotImplementedException();
+            var tempKey = (SetKeyResult)resultKey;
             var hasResults = true;
             try
             {
@@ -155,7 +159,7 @@ namespace RedisBlue
 
                 while (hasResults && !cancellationToken.IsCancellationRequested)
                 {
-                    var results = await _redis.SortedSetRangeByRankAsync(resultKey, index, index + BatchSize);
+                    var results = await _redis.SortedSetRangeByRankAsync(tempKey.Key, index, index + BatchSize);
                     hasResults = results.Length > 0;
                     foreach (var itemKey in results)
                     {
@@ -168,7 +172,7 @@ namespace RedisBlue
             }
             finally
             {
-                await _keyResolver.DiscardTempKey(_redis, new RedisKey[] { resultKey });
+                await _keyResolver.DiscardTempKey(_redis, new RedisKey[] { tempKey.Key });
             }
         }
 

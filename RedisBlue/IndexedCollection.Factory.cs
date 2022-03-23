@@ -2,6 +2,7 @@
 using RedisBlue.Interfaces;
 using RedisBlue.Models;
 using RedisBlue.Services;
+using RedisBlue.Services.MethodResolvers;
 using StackExchange.Redis;
 using System;
 using System.Collections.Concurrent;
@@ -24,8 +25,16 @@ namespace RedisBlue
             serviceCollection.AddSingleton<IScoreCalculator, ScoreCalculator>();
             serviceCollection.AddSingleton<IIndexer, Indexer>();
             serviceCollection.AddSingleton<IResolverProvider, ResolverProvider>();
-            serviceCollection.AddSingleton<IOperandResolver, ComparisonResolver>();
-            serviceCollection.AddSingleton<IOperandResolver, LogicalResolver>();
+            serviceCollection.AddSingleton<IExpressionResolver, ComparisonResolver>();
+            serviceCollection.AddSingleton<IExpressionResolver, LogicalResolver>();
+            serviceCollection.AddSingleton<IExpressionResolver, CallResolver>();
+            serviceCollection.AddSingleton<IExpressionResolver, ConstantResolver>();
+            serviceCollection.AddSingleton<IExpressionResolver, LambdaResolver>();
+            serviceCollection.AddSingleton<IExpressionResolver, MemberResolver>();
+            serviceCollection.AddSingleton<IExpressionResolver, QuoteResolver>();
+
+            serviceCollection.AddSingleton<IMethodResolver, WhereResolver>();
+            serviceCollection.AddSingleton<IMethodResolver, GetItemResolver>();
 
             serviceCollection.AddSingleton<IExpressionConverter, ExpressionConverter>();
 
