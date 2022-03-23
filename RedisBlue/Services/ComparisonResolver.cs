@@ -29,9 +29,18 @@ namespace RedisBlue.Services
 
             var comparision = (ComparisonOperand)operand;
 
-            var rangeKey = $"{_keyResolver.GetPartitionKey(collectionName, partitionKey)}:$index:{comparision.Left.Path}:$range";
+            if (comparision.Left is not MemberOperand)
+                throw new NotImplementedException();
+
+            if (comparision.Right is not ConstantOperand)
+                throw new NotImplementedException();
+
+            var left = (MemberOperand)comparision.Left;
+            var right = (ConstantOperand)comparision.Right;
+
+            var rangeKey = $"{_keyResolver.GetPartitionKey(collectionName, partitionKey)}:$index:{left.Path}:$range";
             var destKey = _keyResolver.GetTempKey(collectionName, partitionKey);
-            var score = _scoreCalculator.Calculate(comparision.Right.Value);
+            var score = _scoreCalculator.Calculate(right.Value);
 
             switch (comparision.Operator)
             {
@@ -49,7 +58,7 @@ namespace RedisBlue.Services
                     }
                     finally
                     {
-                        await db.ExecuteAsync("UNLINK", beforeKey, afterKey);
+                        await _keyResolver.DiscardTempKey(db, new RedisKey[] { beforeKey, afterKey });
                     }
                     break;
                 case ComparisonOperator.GreaterThanEqual:

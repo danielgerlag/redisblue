@@ -5,9 +5,12 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RedisBlue
@@ -17,6 +20,7 @@ namespace RedisBlue
         private readonly string _collectionName;
         private const string ETagField = "ETag";
         private const string DataField = "Data";
+        private const int BatchSize = 100;
         
         private readonly IDatabase _redis;
         private readonly IIndexer _indexer;
@@ -135,12 +139,37 @@ namespace RedisBlue
             return Task.WhenAll(tasks);
         }
 
-        public async Task<RedisKey> Query(string partitionKey, Operand query)
+        public IAsyncQueryable<T> AsQueryable<T>(string partitionKey)
+        {
+            return new RedisQueryContext<T>(this, partitionKey, _serviceProvider);
+        }
+
+        internal async IAsyncEnumerable<T> Query<T>(string partitionKey, Operand query, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var resolver = _resolverProvider.GetResolver(query);
-            var result = await resolver.Resolve(_redis, _collectionName, partitionKey, query);
+            var resultKey = await resolver.Resolve(_redis, _collectionName, partitionKey, query);
+            var hasResults = true;
+            try
+            {
+                long index = 0;
 
-            return result;
+                while (hasResults && !cancellationToken.IsCancellationRequested)
+                {
+                    var results = await _redis.SortedSetRangeByRankAsync(resultKey, index, index + BatchSize);
+                    hasResults = results.Length > 0;
+                    foreach (var itemKey in results)
+                    {
+                        var item = await ReadItem<T>(partitionKey, itemKey);
+                        yield return item;
+                    }
+
+                    index = index + BatchSize + 1;
+                }
+            }
+            finally
+            {
+                await _keyResolver.DiscardTempKey(_redis, new RedisKey[] { resultKey });
+            }
         }
 
         private byte[] BuildEtag(byte[] data)

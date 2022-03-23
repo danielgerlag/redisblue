@@ -27,6 +27,8 @@ namespace RedisBlue
             serviceCollection.AddSingleton<IOperandResolver, ComparisonResolver>();
             serviceCollection.AddSingleton<IOperandResolver, LogicalResolver>();
 
+            serviceCollection.AddSingleton<IExpressionConverter, ExpressionConverter>();
+
             _serviceProvider = serviceCollection.BuildServiceProvider();
         }
 

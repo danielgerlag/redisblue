@@ -4,6 +4,7 @@ using RedisBlue;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using RedisBlue.Models;
+using System.Linq;
 
 namespace TestApp
 {
@@ -39,33 +40,47 @@ namespace TestApp
             //collection.DeleteItem<MyData>("abc", "2").Wait();
             //var res = collection.ReadItem<MyData>("abc", "1").Result;
 
-            var o1 = new ComparisonOperand()
-            {
-                Left = new MemberOperand() { Path = "Value1" },
-                Operator = ComparisonOperator.LessThan,
-                Right = new ConstantOperand() { Value = 500 }
-            };
+            //var o1 = new ComparisonOperand()
+            //{
+            //    Left = new MemberOperand() { Path = "Value1" },
+            //    Operator = ComparisonOperator.LessThan,
+            //    Right = new ConstantOperand() { Value = 500 }
+            //};
 
-            var o2 = new ComparisonOperand()
-            {
-                Left = new MemberOperand() { Path = "Value1" },
-                Operator = ComparisonOperator.GreaterThan,
-                Right = new ConstantOperand() { Value = 50 }
-            };
+            //var o2 = new ComparisonOperand()
+            //{
+            //    Left = new MemberOperand() { Path = "Value1" },
+            //    Operator = ComparisonOperator.GreaterThan,
+            //    Right = new ConstantOperand() { Value = 50 }
+            //};
 
-            var k = await collection.Query("abc", new LogicalOperand()
-            {
-                Operator = LogicalOperator.And,
-                Operands = new List<Operand>() { o1, o2 }
-            });
+            //var results = collection.Query<MyData>("abc", new LogicalOperand()
+            //{
+            //    Operator = LogicalOperator.And,
+            //    Operands = new List<Operand>() { o1, o2 }
+            //});
 
-            Console.WriteLine(k);
+            var query = collection.AsQueryable<MyData>("abc");
+            //query = query.Where(x => x.Value1 == 100);
+            //query = query.Where(x => (x.Value1 == 100 || x.Value1 == 200) && x.Name == "name2");
+            //query = query.Where(x => x.SubData.MyInt == 99);
+            //query = query.Where(x => x.Dict["k2"] == 9);
+            query = query.Where(x => x.List1[0] == 1);
+
+            await foreach (var item in query)
+            {
+                Console.WriteLine(item);
+            }
+            //IQueryable<MyData> dat;
+
+            //dat.Where()
+            
             Console.WriteLine("done");
             Console.ReadLine();
         }
     }
 
-    class MyData
+    record MyData
     {
         [Key]
         public string Id { get; set; }
@@ -95,7 +110,7 @@ namespace TestApp
         public List<SubData> List3 { get; set; }
     }
 
-    class SubData
+    record SubData
     {
         public SubData()
         {
