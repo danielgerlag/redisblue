@@ -16,8 +16,8 @@ namespace RedisBlue.Models
     {
         public RedisQueryContext(IndexedCollection source, string partitionKey, IServiceProvider serviceProvider)
         {
-            Expression = Expression.Constant(this);
-            Provider = new RedisQueryProvider<T>(source, partitionKey, serviceProvider.GetRequiredService<IExpressionConverter>());
+            Expression = Expression.Parameter(GetType());
+            Provider = new RedisQueryProvider<T>(source, partitionKey);
         }
 
         public RedisQueryContext(IAsyncQueryProvider provider, Expression expression)

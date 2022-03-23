@@ -29,14 +29,16 @@ namespace RedisBlue
             serviceCollection.AddSingleton<IExpressionResolver, LogicalResolver>();
             serviceCollection.AddSingleton<IExpressionResolver, CallResolver>();
             serviceCollection.AddSingleton<IExpressionResolver, ConstantResolver>();
+            serviceCollection.AddSingleton<IExpressionResolver, ParameterResolver>();
             serviceCollection.AddSingleton<IExpressionResolver, LambdaResolver>();
             serviceCollection.AddSingleton<IExpressionResolver, MemberResolver>();
             serviceCollection.AddSingleton<IExpressionResolver, QuoteResolver>();
+            serviceCollection.AddSingleton<IExpressionResolver, ConvertResolver>();
 
             serviceCollection.AddSingleton<IMethodResolver, WhereResolver>();
+            serviceCollection.AddSingleton<IMethodResolver, OrderByResolver>();
+            serviceCollection.AddSingleton<IMethodResolver, OrderByDescendingResolver>();
             serviceCollection.AddSingleton<IMethodResolver, GetItemResolver>();
-
-            serviceCollection.AddSingleton<IExpressionConverter, ExpressionConverter>();
 
             _serviceProvider = serviceCollection.BuildServiceProvider();
         }

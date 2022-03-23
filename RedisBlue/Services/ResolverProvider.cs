@@ -48,6 +48,7 @@ namespace RedisBlue.Services
 
         public IExpressionResolver GetExpressionResolver(Expression expression)
         {
+            var t = expression.GetType();
             if (!_expressionResolvers.Value.ContainsKey(expression.NodeType))
                 throw new NotImplementedException();
             return _expressionResolvers.Value[expression.NodeType];

@@ -12,6 +12,6 @@ namespace RedisBlue.Interfaces
     internal interface IExpressionResolver
     {
         ExpressionType[] NodeTypes { get; }
-        Task<ResolverResult> Resolve(IDatabaseAsync db, string collectionName, string partitionKey, Expression expression);
+        Task<ResolverResult> Resolve(ExpressionContext context, Expression expression);
     }
 }

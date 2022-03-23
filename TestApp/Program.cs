@@ -18,14 +18,14 @@ namespace TestApp
 
             //collection.CreateItem(new MyData()
             //{
-            //    Id = "3",
+            //    Id = "2",
             //    Partition = "abc",
-            //    Name = "name3",
+            //    Name = "name2",
             //    Value1 = 200,
             //    SubData = new SubData()
             //    {
-            //        MyInt = 99,
-            //        MyStr = "foo"
+            //        MyInt = 200,
+            //        MyStr = "foobar"
             //    },
             //    Dict = new Dictionary<string, object>
             //    {
@@ -61,11 +61,18 @@ namespace TestApp
             //});
 
             var query = collection.AsQueryable<MyData>("abc");
+
+            query = query
+              .Where(x => x.Value1 > 120)
+              .Where(x => x.Value1 < 180);
+
             //query = query.Where(x => x.Value1 == 100);
             //query = query.Where(x => (x.Value1 == 100 || x.Value1 == 200) && x.Name == "name2");
-            //query = query.Where(x => x.SubData.MyInt == 99);
-            //query = query.Where(x => x.Dict["k2"] == 9);
-            query = query.Where(x => x.List1[0] == 1);
+            //query = query.Where(x => x.SubData.MyInt == 99 && x.Value1 > 120).OrderBy(x => x.Value1);
+
+            //query = query.OrderBy(x => x.Value1);
+            //query = query.Where(x => x.Dict["k1"] == 9);
+            //query = query.Where(x => x.List1[0] == 1);
 
             await foreach (var item in query)
             {
@@ -74,7 +81,7 @@ namespace TestApp
             //IQueryable<MyData> dat;
 
             //dat.Where()
-            
+
             Console.WriteLine("done");
             Console.ReadLine();
         }

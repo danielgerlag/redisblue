@@ -2,6 +2,7 @@
 using RedisBlue.Models;
 using StackExchange.Redis;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -21,13 +22,13 @@ namespace RedisBlue.Services
             ExpressionType.Constant,
         };
 
-        public async Task<ResolverResult> Resolve(IDatabaseAsync db, string collectionName, string partitionKey, Expression expression)
+        public async Task<ResolverResult> Resolve(ExpressionContext context, Expression expression)
         {
             if (expression is not ConstantExpression)
                 throw new NotImplementedException();
 
             var constant = (ConstantExpression)expression;
-
+            
             return new ValueResult(constant.Value);
         }
     }

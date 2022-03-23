@@ -24,7 +24,7 @@ namespace RedisBlue.Services
             ExpressionType.MemberAccess,
         };
 
-        public async Task<ResolverResult> Resolve(IDatabaseAsync db, string collectionName, string partitionKey, Expression expression)
+        public async Task<ResolverResult> Resolve(ExpressionContext context, Expression expression)
         {
             if (expression is not MemberExpression)
                 throw new NotImplementedException();

@@ -20,13 +20,13 @@ namespace RedisBlue.Services.MethodResolvers
         }
         public string MethodName => "get_Item";
 
-        public async Task<ResolverResult> Resolve(IDatabaseAsync db, string collectionName, string partitionKey, MethodCallExpression expression)
+        public async Task<ResolverResult> Resolve(ExpressionContext context, MethodCallExpression expression)
         {
             var objResolver = _resolverProvider.GetExpressionResolver(expression.Object);
             var keyResolver = _resolverProvider.GetExpressionResolver(expression.Arguments[0]);
 
-            var objResult = await objResolver.Resolve(db, collectionName, partitionKey, expression.Object);
-            var keyResult = await keyResolver.Resolve(db, collectionName, partitionKey, expression.Arguments[0]);
+            var objResult = await objResolver.Resolve(context, expression.Object);
+            var keyResult = await keyResolver.Resolve(context, expression.Arguments[0]);
 
             if (objResult is not MemberResult)
                 throw new NotImplementedException();

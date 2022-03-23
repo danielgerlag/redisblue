@@ -33,7 +33,7 @@ namespace RedisBlue.Services
             ExpressionType.LessThanOrEqual,
         };
 
-        public async Task<ResolverResult> Resolve(IDatabaseAsync db, string collectionName, string partitionKey, Expression expression)
+        public async Task<ResolverResult> Resolve(ExpressionContext context, Expression expression)
         {
             if (expression is not BinaryExpression)
                 throw new NotImplementedException();
@@ -43,54 +43,54 @@ namespace RedisBlue.Services
             var leftResolver = _resolverProvider.GetExpressionResolver(binary.Left);
             var rightResolver = _resolverProvider.GetExpressionResolver(binary.Right);
 
-            var leftResult = await leftResolver.Resolve(db, collectionName, partitionKey, binary.Left);
+            var leftResult = await leftResolver.Resolve(context, binary.Left);
             if (leftResult is not MemberResult)
                 throw new NotImplementedException();
             var left = (MemberResult)leftResult;
 
-            var rightResult = await rightResolver.Resolve(db, collectionName, partitionKey, binary.Right);
+            var rightResult = await rightResolver.Resolve(context, binary.Right);
             if (rightResult is not ValueResult)
                 throw new NotImplementedException();
             var right = (ValueResult)rightResult;
 
-            var rangeKey = $"{_keyResolver.GetPartitionKey(collectionName, partitionKey)}:$index:{left.Path}:$range";
-            var destKey = _keyResolver.GetTempKey(collectionName, partitionKey);
+            var rangeKey = $"{_keyResolver.GetPartitionKey(context.CollectionName, context.PartitionKey)}:$index:{left.Path}:$range";
+            var destKey = _keyResolver.GetTempKey(context.CollectionName, context.PartitionKey);
             var score = _scoreCalculator.Calculate(right.Value);
 
             switch (expression.NodeType)
             {
                 case ExpressionType.Equal:
-                    await db.SortedSetRangeByScoreStoreAsync(destKey, rangeKey, score, score);
+                    await context.Db.SortedSetRangeByScoreStoreAsync(destKey, rangeKey, score, score);
                     break;
                 case ExpressionType.NotEqual:
-                    var beforeKey = _keyResolver.GetTempKey(collectionName, partitionKey);
-                    var afterKey = _keyResolver.GetTempKey(collectionName, partitionKey);
+                    var beforeKey = _keyResolver.GetTempKey(context.CollectionName, context.PartitionKey);
+                    var afterKey = _keyResolver.GetTempKey(context.CollectionName, context.PartitionKey);
                     try
                     {
-                        await db.SortedSetRangeByScoreStoreAsync(beforeKey, rangeKey, "-inf", $"({score}");
-                        await db.SortedSetRangeByScoreStoreAsync(afterKey, rangeKey, $"({score}", "+inf");
-                        await db.SortedSetCombineAndStoreAsync(SetOperation.Union, destKey, beforeKey, afterKey);
+                        await context.Db.SortedSetRangeByScoreStoreAsync(beforeKey, rangeKey, "-inf", $"({score}");
+                        await context.Db.SortedSetRangeByScoreStoreAsync(afterKey, rangeKey, $"({score}", "+inf");
+                        await context.Db.SortedSetCombineAndStoreAsync(SetOperation.Union, destKey, beforeKey, afterKey);
                     }
                     finally
                     {
-                        await _keyResolver.DiscardTempKey(db, new RedisKey[] { beforeKey, afterKey });
+                        await _keyResolver.DiscardTempKey(context.Db, new RedisKey[] { beforeKey, afterKey });
                     }
                     break;
                 case ExpressionType.GreaterThanOrEqual:
-                    await db.SortedSetRangeByScoreStoreAsync(destKey, rangeKey, score, "+inf");
+                    await context.Db.SortedSetRangeByScoreStoreAsync(destKey, rangeKey, score, "+inf");
                     break;
                 case ExpressionType.GreaterThan:
-                    await db.SortedSetRangeByScoreStoreAsync(destKey, rangeKey, $"({score}", "+inf");
+                    await context.Db.SortedSetRangeByScoreStoreAsync(destKey, rangeKey, $"({score}", "+inf");
                     break;
                 case ExpressionType.LessThanOrEqual:
-                    await db.SortedSetRangeByScoreStoreAsync(destKey, rangeKey, "-inf", score);
+                    await context.Db.SortedSetRangeByScoreStoreAsync(destKey, rangeKey, "-inf", score);
                     break;
                 case ExpressionType.LessThan:
-                    await db.SortedSetRangeByScoreStoreAsync(destKey, rangeKey, "-inf", $"({score}");
+                    await context.Db.SortedSetRangeByScoreStoreAsync(destKey, rangeKey, "-inf", $"({score}");
                     break;
             }
 
-            return new SetKeyResult(destKey);
+            return new SetKeyResult(destKey, true);
         }
     }
 }

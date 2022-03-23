@@ -1,5 +1,4 @@
 ﻿using RedisBlue.Models;
-using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +11,6 @@ namespace RedisBlue.Interfaces
     internal interface IMethodResolver
     {
         string MethodName { get; }
-        Task<ResolverResult> Resolve(IDatabaseAsync db, string collectionName, string partitionKey, MethodCallExpression expression);
+        Task<ResolverResult> Resolve(ExpressionContext context, MethodCallExpression expression);
     }
 }

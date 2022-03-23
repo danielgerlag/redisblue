@@ -24,7 +24,7 @@ namespace RedisBlue.Services
             ExpressionType.Call,
         };
 
-        public async Task<ResolverResult> Resolve(IDatabaseAsync db, string collectionName, string partitionKey, Expression expression)
+        public async Task<ResolverResult> Resolve(ExpressionContext context, Expression expression)
         {
             if (expression is not MethodCallExpression)
                 throw new NotImplementedException();
@@ -32,7 +32,7 @@ namespace RedisBlue.Services
             var method = (MethodCallExpression)expression;
             var methodResolver = _resolverProvider.GetMethodResolver(method);
 
-            return await methodResolver.Resolve(db, collectionName, partitionKey, method);
+            return await methodResolver.Resolve(context, method);
         }
     }
 }

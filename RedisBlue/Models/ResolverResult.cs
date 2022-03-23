@@ -13,12 +13,14 @@ namespace RedisBlue.Models
 
     internal class SetKeyResult : ResolverResult
     {
-        public SetKeyResult(RedisKey key)
+        public SetKeyResult(RedisKey key, bool isTemp)
         {
             Key = key;
+            IsTemp = isTemp;
         }
 
         public RedisKey Key { get; set; }
+        public bool IsTemp { get; set; }
     }
 
     internal class MemberResult : ResolverResult

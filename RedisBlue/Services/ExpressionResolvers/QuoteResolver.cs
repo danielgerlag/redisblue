@@ -24,7 +24,7 @@ namespace RedisBlue.Services
             ExpressionType.Quote,
         };
 
-        public async Task<ResolverResult> Resolve(IDatabaseAsync db, string collectionName, string partitionKey, Expression expression)
+        public async Task<ResolverResult> Resolve(ExpressionContext context, Expression expression)
         {
             if (expression is not UnaryExpression)
                 throw new NotImplementedException();
@@ -32,7 +32,7 @@ namespace RedisBlue.Services
             var unary = (UnaryExpression)expression;
             var opResolver = _resolverProvider.GetExpressionResolver(unary.Operand);
 
-            return await opResolver.Resolve(db, collectionName, partitionKey, unary.Operand);
+            return await opResolver.Resolve(context, unary.Operand);
         }
     }
 }

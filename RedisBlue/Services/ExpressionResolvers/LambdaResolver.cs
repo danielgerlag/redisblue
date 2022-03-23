@@ -24,7 +24,7 @@ namespace RedisBlue.Services
             ExpressionType.Lambda,
         };
 
-        public async Task<ResolverResult> Resolve(IDatabaseAsync db, string collectionName, string partitionKey, Expression expression)
+        public async Task<ResolverResult> Resolve(ExpressionContext context, Expression expression)
         {
             if (expression is not LambdaExpression)
                 throw new NotImplementedException();
@@ -32,7 +32,7 @@ namespace RedisBlue.Services
             var lambda = (LambdaExpression)expression;
             var bodyResolver = _resolverProvider.GetExpressionResolver(lambda.Body);
 
-            return await bodyResolver.Resolve(db, collectionName, partitionKey, lambda.Body);
+            return await bodyResolver.Resolve(context, lambda.Body);
         }
     }
 }

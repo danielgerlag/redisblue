@@ -27,14 +27,14 @@ namespace RedisBlue.Services
             ExpressionType.OrElse,
         };
 
-        public async Task<ResolverResult> Resolve(IDatabaseAsync db, string collectionName, string partitionKey, Expression expression)
+        public async Task<ResolverResult> Resolve(ExpressionContext context, Expression expression)
         {
             if (expression is not BinaryExpression)
                 throw new NotImplementedException();
 
             var binary = (BinaryExpression)expression;
 
-            var destKey = _keyResolver.GetTempKey(collectionName, partitionKey);
+            var destKey = _keyResolver.GetTempKey(context.CollectionName, context.PartitionKey);
             
             var weights = new List<double>();
             var tempKeys = new List<RedisKey>();
@@ -44,33 +44,35 @@ namespace RedisBlue.Services
                 var leftResolver = _resolverProvider.GetExpressionResolver(binary.Left);
                 var rightResolver = _resolverProvider.GetExpressionResolver(binary.Right);
 
-                var leftResult = await leftResolver.Resolve(db, collectionName, partitionKey, binary.Left);
+                var leftResult = await leftResolver.Resolve(context, binary.Left);
                 if (leftResult is not SetKeyResult)
                     throw new NotImplementedException();
-                tempKeys.Add(((SetKeyResult)leftResult).Key);
+                if (((SetKeyResult)leftResult).IsTemp)
+                    tempKeys.Add(((SetKeyResult)leftResult).Key);
                 weights.Add(0);
 
-                var rightResult = await rightResolver.Resolve(db, collectionName, partitionKey, binary.Right);
+                var rightResult = await rightResolver.Resolve(context, binary.Right);
                 if (rightResult is not SetKeyResult)
                     throw new NotImplementedException();
-                tempKeys.Add(((SetKeyResult)rightResult).Key);
+                if (((SetKeyResult)rightResult).IsTemp)
+                    tempKeys.Add(((SetKeyResult)rightResult).Key);
                 weights.Add(0);
 
                 switch (expression.NodeType)
                 {
                     case ExpressionType.AndAlso:
-                        await db.SortedSetCombineAndStoreAsync(SetOperation.Intersect, destKey, tempKeys.ToArray(), weights.ToArray());
+                        await context.Db.SortedSetCombineAndStoreAsync(SetOperation.Intersect, destKey, tempKeys.ToArray(), weights.ToArray());
                         break;
                     case ExpressionType.OrElse:
-                        await db.SortedSetCombineAndStoreAsync(SetOperation.Union, destKey, tempKeys.ToArray(), weights.ToArray());
+                        await context.Db.SortedSetCombineAndStoreAsync(SetOperation.Union, destKey, tempKeys.ToArray(), weights.ToArray());
                         break;
                 }
 
-                return new SetKeyResult(destKey);
+                return new SetKeyResult(destKey, true);
             }
             finally
             {
-                await _keyResolver.DiscardTempKey(db, tempKeys);
+                await _keyResolver.DiscardTempKey(context.Db, tempKeys);
             }
         }
     }

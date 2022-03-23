@@ -11,6 +11,7 @@ namespace RedisBlue.Models
         public readonly Dictionary<string, PropertyCacheInfo> IndexProperties = new();
         public readonly MethodInfo KeyGetMethod;
         public readonly MethodInfo PartitionKeyGetMethod;
+        public readonly string KeyPropertyName;
         public readonly bool IsLeafValue;
         public readonly bool IsCollection;
         public readonly bool IsDictionary;
@@ -34,6 +35,7 @@ namespace RedisBlue.Models
                 if (keyAttr != null)
                 {
                     KeyGetMethod = prop.GetGetMethod();
+                    KeyPropertyName = prop.Name;
                     IndexProperties.Add(prop.Name, new PropertyCacheInfo(prop));
                 }
 

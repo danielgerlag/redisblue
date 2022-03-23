@@ -13,13 +13,11 @@ namespace RedisBlue.Services
     internal class RedisQueryProvider<T> : IAsyncQueryProvider
     {
         private readonly IndexedCollection _source;
-        private readonly IExpressionConverter _expressionConverter;
         private readonly string _partitionKey;
 
-        public RedisQueryProvider(IndexedCollection source, string partitionKey, IExpressionConverter expressionConverter)
+        public RedisQueryProvider(IndexedCollection source, string partitionKey)
         {
             _source = source;
-            _expressionConverter = expressionConverter;
             _partitionKey = partitionKey;
         }
 
