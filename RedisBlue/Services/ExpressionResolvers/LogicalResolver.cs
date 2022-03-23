@@ -37,7 +37,7 @@ namespace RedisBlue.Services
             var destKey = _keyResolver.GetTempKey(context.CollectionName, context.PartitionKey);
             
             var weights = new List<double>();
-            var tempKeys = new List<RedisKey>();
+            var sourceKeys = new List<SetKeyResult>();
 
             try
             {
@@ -47,24 +47,22 @@ namespace RedisBlue.Services
                 var leftResult = await leftResolver.Resolve(context, binary.Left);
                 if (leftResult is not SetKeyResult)
                     throw new NotImplementedException();
-                if (((SetKeyResult)leftResult).IsTemp)
-                    tempKeys.Add(((SetKeyResult)leftResult).Key);
+                sourceKeys.Add(((SetKeyResult)leftResult));
                 weights.Add(0);
 
                 var rightResult = await rightResolver.Resolve(context, binary.Right);
                 if (rightResult is not SetKeyResult)
                     throw new NotImplementedException();
-                if (((SetKeyResult)rightResult).IsTemp)
-                    tempKeys.Add(((SetKeyResult)rightResult).Key);
+                sourceKeys.Add(((SetKeyResult)rightResult));
                 weights.Add(0);
 
                 switch (expression.NodeType)
                 {
                     case ExpressionType.AndAlso:
-                        await context.Db.SortedSetCombineAndStoreAsync(SetOperation.Intersect, destKey, tempKeys.ToArray(), weights.ToArray());
+                        await context.Db.SortedSetCombineAndStoreAsync(SetOperation.Intersect, destKey, sourceKeys.Select(x => x.Key).ToArray(), weights.ToArray());
                         break;
                     case ExpressionType.OrElse:
-                        await context.Db.SortedSetCombineAndStoreAsync(SetOperation.Union, destKey, tempKeys.ToArray(), weights.ToArray());
+                        await context.Db.SortedSetCombineAndStoreAsync(SetOperation.Union, destKey, sourceKeys.Select(x => x.Key).ToArray(), weights.ToArray());
                         break;
                 }
 
@@ -72,7 +70,7 @@ namespace RedisBlue.Services
             }
             finally
             {
-                await _keyResolver.DiscardTempKey(context.Db, tempKeys);
+                await _keyResolver.DiscardTempKey(context.Db, sourceKeys.Where(x => x.IsTemp).Select(x => x.Key));
             }
         }
     }

@@ -60,8 +60,9 @@ namespace RedisBlue.Services
             switch (expression.NodeType)
             {
                 case ExpressionType.Equal:
-                    await context.Db.SortedSetRangeByScoreStoreAsync(destKey, rangeKey, score, score);
-                    break;
+                    var hash = _scoreCalculator.Hash(right.Value);
+                    var hashKey = $"{_keyResolver.GetPartitionKey(context.CollectionName, context.PartitionKey)}:$index:{left.Path}:$hash:{hash}";
+                    return new SetKeyResult(hashKey, false);
                 case ExpressionType.NotEqual:
                     var beforeKey = _keyResolver.GetTempKey(context.CollectionName, context.PartitionKey);
                     var afterKey = _keyResolver.GetTempKey(context.CollectionName, context.PartitionKey);

@@ -9,5 +9,6 @@ namespace RedisBlue.Interfaces
     internal interface IScoreCalculator
     {
         double Calculate(object value);
+        string Hash(object value);
     }
 }

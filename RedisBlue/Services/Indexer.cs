@@ -36,7 +36,9 @@ namespace RedisBlue.Services
             if (typeInfo.IsLeafValue)
             {
                 var score = _scoreCalculator.Calculate(item);
+                var hash = _scoreCalculator.Hash(item);
                 tasks.Add(batch.SortedSetAddAsync($"{_keyResolver.GetPartitionKey(collectionName, partitionKey)}:{path}:$range", itemKey, score));
+                tasks.Add(batch.SortedSetAddAsync($"{_keyResolver.GetPartitionKey(collectionName, partitionKey)}:{path}:$hash:{hash}", itemKey, 0));
             }
 
             if (item is IDictionary dictItem)
@@ -81,7 +83,9 @@ namespace RedisBlue.Services
 
             if (typeInfo.IsLeafValue)
             {
+                var hash = _scoreCalculator.Hash(item);
                 tasks.Add(batch.SortedSetRemoveAsync($"{_keyResolver.GetPartitionKey(collectionName, partitionKey)}:{path}:$range", itemKey));
+                tasks.Add(batch.SortedSetRemoveAsync($"{_keyResolver.GetPartitionKey(collectionName, partitionKey)}:{path}:$hash:{hash}", itemKey));
             }
 
             if (item is IDictionary dictItem)

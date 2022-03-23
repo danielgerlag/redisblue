@@ -21,6 +21,11 @@ namespace RedisBlue.Services
             };
         }
 
+        public string Hash(object value)
+        {
+            return Get128BitHash(Convert.ToString(value));
+        }
+
         private static double Get64BitHash(string strText)
         {
             if (string.IsNullOrEmpty(strText))
@@ -34,6 +39,16 @@ namespace RedisBlue.Services
                 hashCode ^= BitConverter.ToInt64(hashText, start);
 
             return Convert.ToDouble(hashCode);
+        }
+
+        private static string Get128BitHash(string strText)
+        {
+            if (string.IsNullOrEmpty(strText))
+                return "null";
+
+            byte[] byteContents = Encoding.Unicode.GetBytes(strText);
+            byte[] hashText = MD5.HashData(byteContents);
+            return Convert.ToBase64String(hashText);
         }
     }
 }

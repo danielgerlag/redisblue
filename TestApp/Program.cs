@@ -21,18 +21,18 @@ namespace TestApp
             //    Id = "2",
             //    Partition = "abc",
             //    Name = "name2",
-            //    Value1 = 200,
+            //    Value1 = 150,
             //    SubData = new SubData()
             //    {
-            //        MyInt = 200,
-            //        MyStr = "foobar"
+            //        MyInt = 100,
+            //        MyStr = "foo"
             //    },
             //    Dict = new Dictionary<string, object>
             //    {
             //        ["k1"] = "foo",
             //        ["k2"] = 9
             //    },
-            //    List1 = new List<int> { 1, 2, 3 },
+            //    List1 = new List<int> { 1, 2, 3, 4 },
             //    List2 = new List<string> { "abc", "def" },
             //    List3 = new List<SubData> { new SubData("s1", 1), new SubData("s2", 2) }
             //}).Wait();
@@ -40,33 +40,12 @@ namespace TestApp
             //collection.DeleteItem<MyData>("abc", "2").Wait();
             //var res = collection.ReadItem<MyData>("abc", "1").Result;
 
-            //var o1 = new ComparisonOperand()
-            //{
-            //    Left = new MemberOperand() { Path = "Value1" },
-            //    Operator = ComparisonOperator.LessThan,
-            //    Right = new ConstantOperand() { Value = 500 }
-            //};
-
-            //var o2 = new ComparisonOperand()
-            //{
-            //    Left = new MemberOperand() { Path = "Value1" },
-            //    Operator = ComparisonOperator.GreaterThan,
-            //    Right = new ConstantOperand() { Value = 50 }
-            //};
-
-            //var results = collection.Query<MyData>("abc", new LogicalOperand()
-            //{
-            //    Operator = LogicalOperator.And,
-            //    Operands = new List<Operand>() { o1, o2 }
-            //});
 
             var query = collection.AsQueryable<MyData>("abc");
 
-            query = query
-              .Where(x => x.Value1 > 120)
-              .Where(x => x.Value1 < 180);
+            //query = query.Where(x => x.SubData.MyInt == 200);
 
-            //query = query.Where(x => x.Value1 == 100);
+            query = query.Where(x => x.Name == "name3" || x.Value1 == 150);
             //query = query.Where(x => (x.Value1 == 100 || x.Value1 == 200) && x.Name == "name2");
             //query = query.Where(x => x.SubData.MyInt == 99 && x.Value1 > 120).OrderBy(x => x.Value1);
 
