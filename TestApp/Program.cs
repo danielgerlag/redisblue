@@ -12,9 +12,24 @@ namespace TestApp
     {
         static async Task Main(string[] args)
         {
-            var multiplexer = ConnectionMultiplexer.ConnectAsync("localhost:6379,abortConnect=False").Result;
-
+            var multiplexer = await ConnectionMultiplexer.ConnectAsync("localhost:6379,abortConnect=False");
             var collection = IndexedCollection.Create(multiplexer.GetDatabase(), "MyData");
+
+            //await collection.CreateItem(new Person()
+            //{
+            //    Partition = "tenant-1",
+            //    Id = Guid.NewGuid().ToString(),
+            //    Name = "Bob",
+            //    Age = 30
+            //});
+
+            //await collection.CreateItem(new Person()
+            //{
+            //    Partition = "tenant-1",
+            //    Id = Guid.NewGuid().ToString(),
+            //    Name = "Alice",
+            //    Age = 32
+            //});
 
             //collection.CreateItem(new MyData()
             //{
@@ -41,10 +56,14 @@ namespace TestApp
             //var res = collection.ReadItem<MyData>("abc", "1").Result;
 
 
-            var query = collection.AsQueryable<MyData>("abc");
+            var query = collection
+                .AsQueryable<Person>("tenant-1")
+                .Where(p => p.Age > 30 && p.Age < 39)
+                .OrderBy(p => p.Age);
+
 
             //query = query.Where(x => x.SubData.MyInt == 200);
-            query = query.Where(x => !(x.Value1 < 120));
+            //query = query.Where(x => !(x.Value1 < 120));
 
             //query = query.Where(x => x.Value1 == 100 || !(x.Value1 == 150));
             //query = query.Where(x => (x.Value1 == 100 || x.Value1 == 200) && x.Name == "name2");
@@ -67,8 +86,23 @@ namespace TestApp
         }
     }
 
-    record MyData
+    record Person
     {
+        [Key]
+        public string Id { get; set; }
+
+        [PartitionKey]
+        public string Partition { get; set; }
+
+        [Index]
+        public string Name { get; set; }
+
+        [Index]
+        public int Age { get; set; }
+    }
+
+        record MyData
+        {
         [Key]
         public string Id { get; set; }
 
