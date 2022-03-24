@@ -10,6 +10,7 @@
     <RepositoryUrl>https://github.com/danielgerlag/redisblue</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>redis</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
