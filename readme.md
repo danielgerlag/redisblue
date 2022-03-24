@@ -10,8 +10,14 @@ It does this by providing create/read/update/delete operations that automaticall
 
 ## Installation
 
-```powershell
-dotnet add package RedisBlue
+Using .NET CLI
+```
+dotnet add package RedisBlue --version 1.0.0-alpha
+```
+
+Using Nuget package console
+```
+PM> Install-Package RedisBlue -Version 1.0.0-alpha
 ```
 
 ## Getting Started
