@@ -44,8 +44,9 @@ namespace TestApp
             var query = collection.AsQueryable<MyData>("abc");
 
             //query = query.Where(x => x.SubData.MyInt == 200);
+            query = query.Where(x => !(x.Value1 < 120));
 
-            query = query.Where(x => x.Name == "name3" || x.Value1 == 150);
+            //query = query.Where(x => x.Value1 == 100 || !(x.Value1 == 150));
             //query = query.Where(x => (x.Value1 == 100 || x.Value1 == 200) && x.Name == "name2");
             //query = query.Where(x => x.SubData.MyInt == 99 && x.Value1 > 120).OrderBy(x => x.Value1);
 

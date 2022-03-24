@@ -35,10 +35,8 @@ namespace RedisBlue.Services
             var binary = (BinaryExpression)expression;
 
             var destKey = _keyResolver.GetTempKey(context.CollectionName, context.PartitionKey);
+            var tempKeys = new List<SetKeyResult>();
             
-            var weights = new List<double>();
-            var sourceKeys = new List<SetKeyResult>();
-
             try
             {
                 var leftResolver = _resolverProvider.GetExpressionResolver(binary.Left);
@@ -47,22 +45,22 @@ namespace RedisBlue.Services
                 var leftResult = await leftResolver.Resolve(context, binary.Left);
                 if (leftResult is not SetKeyResult)
                     throw new NotImplementedException();
-                sourceKeys.Add(((SetKeyResult)leftResult));
-                weights.Add(0);
+                var sourceKey1 = (SetKeyResult)leftResult;
+                tempKeys.Add(sourceKey1);
 
                 var rightResult = await rightResolver.Resolve(context, binary.Right);
                 if (rightResult is not SetKeyResult)
                     throw new NotImplementedException();
-                sourceKeys.Add(((SetKeyResult)rightResult));
-                weights.Add(0);
+                var sourceKey2 = (SetKeyResult)rightResult;
+                tempKeys.Add(sourceKey2);
 
                 switch (expression.NodeType)
                 {
                     case ExpressionType.AndAlso:
-                        await context.Db.SortedSetCombineAndStoreAsync(SetOperation.Intersect, destKey, sourceKeys.Select(x => x.Key).ToArray(), weights.ToArray());
+                        await context.Db.SortedSetCombineAndStoreAsync(SetOperation.Intersect, destKey, new RedisKey[] { sourceKey1.Key, sourceKey2.Key }, new double[] { 0, 0 });
                         break;
                     case ExpressionType.OrElse:
-                        await context.Db.SortedSetCombineAndStoreAsync(SetOperation.Union, destKey, sourceKeys.Select(x => x.Key).ToArray(), weights.ToArray());
+                        await context.Db.SortedSetCombineAndStoreAsync(SetOperation.Union, destKey, new RedisKey[] { sourceKey1.Key, sourceKey2.Key }, new double[] { 0, 0 });
                         break;
                 }
 
@@ -70,7 +68,7 @@ namespace RedisBlue.Services
             }
             finally
             {
-                await _keyResolver.DiscardTempKey(context.Db, sourceKeys.Where(x => x.IsTemp).Select(x => x.Key));
+                await _keyResolver.DiscardTempKey(context.Db, tempKeys);
             }
         }
     }

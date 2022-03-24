@@ -54,14 +54,12 @@ namespace RedisBlue.Services.MethodResolvers
                 }
                 finally
                 {   
-                    if (sourceKey.IsTemp)
-                        await _keyResolver.DiscardTempKey(context.Db, new RedisKey[] { sourceKey.Key });
+                    await _keyResolver.DiscardTempKey(context.Db, sourceKey);
                 }
             }
             finally
             {
-                if (predicateKey.IsTemp)
-                    await _keyResolver.DiscardTempKey(context.Db, new RedisKey[] { predicateKey.Key });
+                await _keyResolver.DiscardTempKey(context.Db, predicateKey);
             }
         }
     }

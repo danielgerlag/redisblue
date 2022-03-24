@@ -1,4 +1,5 @@
 ﻿using RedisBlue.Interfaces;
+using RedisBlue.Models;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,18 @@ namespace RedisBlue.Services
         public Task DiscardTempKey(IDatabaseAsync db, IEnumerable<RedisKey> keys)
         {
             _ = db.KeyDeleteAsync(keys.ToArray(), CommandFlags.FireAndForget);
+            return Task.CompletedTask;
+        }
+
+        public Task DiscardTempKey(IDatabaseAsync db, params SetKeyResult[] keys)
+        {
+            _ = db.KeyDeleteAsync(keys.Where(x => x.IsTemp).Select(x => x.Key).ToArray(), CommandFlags.FireAndForget);
+            return Task.CompletedTask;
+        }
+
+        public Task DiscardTempKey(IDatabaseAsync db, IEnumerable<SetKeyResult> keys)
+        {
+            _ = db.KeyDeleteAsync(keys.Where(x => x.IsTemp).Select(x => x.Key).ToArray(), CommandFlags.FireAndForget);
             return Task.CompletedTask;
         }
 

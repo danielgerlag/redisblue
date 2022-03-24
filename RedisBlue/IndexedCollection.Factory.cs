@@ -34,6 +34,7 @@ namespace RedisBlue
             serviceCollection.AddSingleton<IExpressionResolver, MemberResolver>();
             serviceCollection.AddSingleton<IExpressionResolver, QuoteResolver>();
             serviceCollection.AddSingleton<IExpressionResolver, ConvertResolver>();
+            serviceCollection.AddSingleton<IExpressionResolver, NotResolver>();
 
             serviceCollection.AddSingleton<IMethodResolver, WhereResolver>();
             serviceCollection.AddSingleton<IMethodResolver, OrderByResolver>();

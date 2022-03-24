@@ -1,4 +1,5 @@
-﻿using StackExchange.Redis;
+﻿using RedisBlue.Models;
+using StackExchange.Redis;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,5 +11,8 @@ namespace RedisBlue.Interfaces
         string GetPartitionKey(string collection, string partitionKey);
         string GetTempKey(string collection, string partitionKey);
         Task DiscardTempKey(IDatabaseAsync db, IEnumerable<RedisKey> keys);
+
+        Task DiscardTempKey(IDatabaseAsync db, IEnumerable<SetKeyResult> keys);
+        Task DiscardTempKey(IDatabaseAsync db, params SetKeyResult[] keys);
     }
 }

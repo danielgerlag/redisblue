@@ -147,8 +147,9 @@ namespace RedisBlue
 
         internal async IAsyncEnumerable<T> Query<T>(string partitionKey, Expression expression, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
+            var typeInfo = _typeCache.GetOrAdd(typeof(T), t => new TypeCacheInfo(t));
             var resolver = _resolverProvider.GetExpressionResolver(expression);
-            var resultKey = await resolver.Resolve(new ExpressionContext(_redis, _collectionName, partitionKey), expression);
+            var resultKey = await resolver.Resolve(new ExpressionContext(_redis, _collectionName, partitionKey, typeInfo), expression);
             if (resultKey is not SetKeyResult)
                 throw new NotImplementedException();
             var tempKey = (SetKeyResult)resultKey;
