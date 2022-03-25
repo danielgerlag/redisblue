@@ -28,13 +28,18 @@ namespace RedisBlue.Services
 
         public async ValueTask<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken token)
         {
-            //var op = _expressionConverter.Convert(expression);
-            var asyncEnumerable = _source.Query<T>(_partitionKey, expression);
-            
-            return typeof(TResult) switch
+            switch (typeof(TResult))
             {
-                Type t when t == typeof(IAsyncEnumerable<T>) => (TResult)asyncEnumerable,
-                _ => throw new NotImplementedException()
+                case Type t when t == typeof(IAsyncEnumerable<T>):
+                    var asyncEnumerable = _source.Query<T>(_partitionKey, expression);
+                    return (TResult)asyncEnumerable;
+
+                case Type t when t.IsValueType:
+                    var valueResult = await _source.QueryValue<T>(_partitionKey, expression);
+                    return (TResult)Convert.ChangeType(valueResult, t);
+
+                default: 
+                    throw new NotImplementedException();
             };
         }
     }

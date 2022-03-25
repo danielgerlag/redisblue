@@ -31,6 +31,14 @@ namespace TestApp
             //    Age = 32
             //});
 
+            //await collection.CreateItem(new Person()
+            //{
+            //    Partition = "tenant-1",
+            //    Id = Guid.NewGuid().ToString(),
+            //    Name = "Mary",
+            //    Age = 35
+            //});
+
             //collection.CreateItem(new MyData()
             //{
             //    Id = "2",
@@ -77,9 +85,6 @@ namespace TestApp
             {
                 Console.WriteLine(item);
             }
-            //IQueryable<MyData> dat;
-
-            //dat.Where()
 
             Console.WriteLine("done");
             Console.ReadLine();

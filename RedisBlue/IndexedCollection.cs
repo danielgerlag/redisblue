@@ -19,8 +19,8 @@ namespace RedisBlue
     public partial class IndexedCollection
     {
         private readonly string _collectionName;
-        private const string ETagField = "ETag";
-        private const string DataField = "Data";
+        private const string ETagField = "$ETag";
+        private const string DataField = "$Data";
         private const int BatchSize = 100;
         
         private readonly IDatabase _redis;
@@ -116,6 +116,19 @@ namespace RedisBlue
             return result;
         }
 
+        internal async Task<object> ReadItem(Type type, string partitionKey, string itemKey)
+        {
+            var indexKey = _keyResolver.GetEntityKey(_collectionName, partitionKey, itemKey);
+
+            var (raw, etag) = await ReadWithETag(indexKey);
+            if (raw.IsEmpty)
+                throw new NotFoundException();
+
+            var result = JsonSerializer.Deserialize(raw.Span, type, _jsonSerializerOptions);
+
+            return result;
+        }
+
         public Task<bool> Exists(string partitionKey, string itemKey)
         {
             var indexKey = _keyResolver.GetEntityKey(_collectionName, partitionKey, itemKey);
@@ -149,7 +162,7 @@ namespace RedisBlue
         {
             var typeInfo = _typeCache.GetOrAdd(typeof(T), t => new TypeCacheInfo(t));
             var resolver = _resolverProvider.GetExpressionResolver(expression);
-            var resultKey = await resolver.Resolve(new ExpressionContext(_redis, _collectionName, partitionKey, typeInfo), expression);
+            var resultKey = await resolver.Resolve(new ExpressionContext(_redis, _collectionName, partitionKey, typeInfo, this), expression);
             if (resultKey is not SetKeyResult)
                 throw new NotImplementedException();
             var tempKey = (SetKeyResult)resultKey;
@@ -176,6 +189,17 @@ namespace RedisBlue
                 if (tempKey.IsTemp)
                     await _keyResolver.DiscardTempKey(_redis, new RedisKey[] { tempKey.Key });
             }
+        }
+
+        internal async Task<object> QueryValue<TSource>(string partitionKey, Expression expression)
+        {
+            var typeInfo = _typeCache.GetOrAdd(typeof(TSource), t => new TypeCacheInfo(t));
+            var resolver = _resolverProvider.GetExpressionResolver(expression);
+            var result = await resolver.Resolve(new ExpressionContext(_redis, _collectionName, partitionKey, typeInfo, this), expression);
+            if (result is not ValueResult)
+                throw new NotImplementedException();
+
+            return ((ValueResult)result).Value;
         }
 
         private byte[] BuildEtag(byte[] data)

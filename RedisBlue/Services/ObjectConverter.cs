@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace RedisBlue.Services
 {
-    public class ObjectConverter : JsonConverter<object>
+    internal class ObjectConverter : JsonConverter<object>
     {
         private const int MaxDepth = 16;
 

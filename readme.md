@@ -29,7 +29,7 @@ using RedisBlue;
 using StackExchange.Redis;
 ```
 
-Decorate any fields on your data class that you wish to query on with with the `Index` attribute.
+Decorate any fields on your data class that you wish to query on with the `Index` attribute.
 You will also need to decorate one field with a `PartitionKey` attribute, this value will determine the cluster slot when your Redis deployment has clustering enabled.
 You will also need to decorate one field with a `Key` attribute, this value must be unique per partition key. The combination of the key and partition key forms a unique identity for an item.
 
@@ -111,10 +111,6 @@ The following expressions are supported
 - Greater Than or equal
 - Less Than
 - Less Than or equal
-
-The following expressions are on the roadmap
 - Min
 - Max
 - Count
-- First
-- Last

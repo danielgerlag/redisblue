@@ -40,6 +40,9 @@ namespace RedisBlue
             serviceCollection.AddSingleton<IMethodResolver, OrderByResolver>();
             serviceCollection.AddSingleton<IMethodResolver, OrderByDescendingResolver>();
             serviceCollection.AddSingleton<IMethodResolver, GetItemResolver>();
+            serviceCollection.AddSingleton<IMethodResolver, MaxAsyncResolver>();
+            serviceCollection.AddSingleton<IMethodResolver, MinAsyncResolver>();
+            serviceCollection.AddSingleton<IMethodResolver, CountAsyncResolver>();
 
             _serviceProvider = serviceCollection.BuildServiceProvider();
         }

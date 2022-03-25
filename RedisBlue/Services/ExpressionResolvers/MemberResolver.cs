@@ -30,8 +30,8 @@ namespace RedisBlue.Services
                 throw new NotImplementedException();
 
             var member = (MemberExpression)expression;
-
-            return new MemberResult(GetMemberPath(member));
+            
+            return new MemberResult(GetMemberPath(member), member);
         }
 
         private string GetMemberPath(MemberExpression member)

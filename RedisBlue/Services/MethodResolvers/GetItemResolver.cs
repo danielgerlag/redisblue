@@ -36,7 +36,7 @@ namespace RedisBlue.Services.MethodResolvers
             var obj = (MemberResult)objResult;
             var key = (ValueResult)keyResult;
 
-            return new MemberResult($"{obj.Path}:{key.Value}");
+            return new MemberResult($"{obj.Path}:{key.Value}", expression);
         }
     }
 }

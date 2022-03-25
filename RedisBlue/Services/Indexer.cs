@@ -39,6 +39,7 @@ namespace RedisBlue.Services
                 var hash = _scoreCalculator.Hash(item);
                 tasks.Add(batch.SortedSetAddAsync($"{_keyResolver.GetPartitionKey(collectionName, partitionKey)}:{path}:$range", itemKey, score));
                 tasks.Add(batch.SortedSetAddAsync($"{_keyResolver.GetPartitionKey(collectionName, partitionKey)}:{path}:$hash:{hash}", itemKey, 0));
+                tasks.Add(batch.HashSetAsync($"{_keyResolver.GetPartitionKey(collectionName, partitionKey)}:{path}:$lookup", itemKey, RedisValue.Unbox(item)));
             }
 
             if (item is IDictionary dictItem)
@@ -86,6 +87,7 @@ namespace RedisBlue.Services
                 var hash = _scoreCalculator.Hash(item);
                 tasks.Add(batch.SortedSetRemoveAsync($"{_keyResolver.GetPartitionKey(collectionName, partitionKey)}:{path}:$range", itemKey));
                 tasks.Add(batch.SortedSetRemoveAsync($"{_keyResolver.GetPartitionKey(collectionName, partitionKey)}:{path}:$hash:{hash}", itemKey));
+                tasks.Add(batch.HashDeleteAsync($"{_keyResolver.GetPartitionKey(collectionName, partitionKey)}:{path}:$lookup", itemKey));
             }
 
             if (item is IDictionary dictItem)

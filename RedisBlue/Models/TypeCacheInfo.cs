@@ -15,9 +15,11 @@ namespace RedisBlue.Models
         public readonly bool IsLeafValue;
         public readonly bool IsCollection;
         public readonly bool IsDictionary;
+        public readonly Type Type;
 
         public TypeCacheInfo(Type type)
         {
+            Type = type;
             var ifaces = type.GetInterfaces();
             IsDictionary = ifaces.Contains(typeof(IDictionary));
             IsCollection = ifaces.Contains(typeof(IEnumerable)) && type != typeof(string);
